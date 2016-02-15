@@ -1,0 +1,33 @@
+#!/bin/bash
+
+## OAR instructions ##
+#OAR -n endem_proj
+#OAR --project teembio
+#OAR -t besteffort
+#OAR -l core=1,walltime=01:00:00
+#OAR -O log_proj_mod.%jobid%.stdout
+#OAR -E log_proj_mod.%jobid%.stderr
+
+## define some bash options
+set -e ## exit the script as soon as a function return an error
+
+## load needed modules
+source /applis/ciment/v2/env.bash 
+module load proj
+module load gdal
+module load R
+
+export http_proxy=http://www-cache.ujf-grenoble.fr:3128/
+export TMPDIR=/var/tmp
+
+## run the endemic species modelling script
+R CMD BATCH "--args ${1} ${2} ${3} ${4}" /nfs_scratch2/dgeorges/Endemicity_SDM/SCRIPTS/3_species_niche_projection.R /dev/stdout
+
+
+## quit the script
+exit $?
+
+## LAUNCH INSTRUCTIONS ##
+## oarsub -S /nfs_scratch2/dgeorges/Endemicity_SDM/SCRIPTS/3_species_niche_projection.oar --array-param-file /nfs_scratch2/dgeorges/Endemicity_SDM/SCRIPTS/3_species_niche_projection.params
+
+
